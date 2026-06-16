@@ -11,14 +11,24 @@ Sistema bancario full-stack: gestión de clientes, cuentas y movimientos con rep
 
 ## Levantar el proyecto
 
-Requiere Docker Desktop instalado.
+Requiere Docker Desktop instalado y corriendo.
 
 ```bash
+# 1. Clonar o descomprimir el proyecto
+# 2. Desde la raíz del proyecto:
 docker compose up --build
 ```
 
+El primer arranque tarda unos minutos mientras descarga imágenes y compila.
+
 - Frontend: http://localhost:4200
 - Backend: http://localhost:8080
+
+Para detener:
+
+```bash
+docker compose down
+```
 
 ## Endpoints
 
