@@ -1,0 +1,193 @@
+<div class="page-header">
+  <h1 class="page-title">Clientes</h1>
+  <button class="btn btn-primary" (click)="openCreate()">+ Nuevo Cliente</button>
+</div>
+
+
+<div class="card">
+  <div class="search-bar">
+    <input type="text" placeholder="Buscar por nombre, ID o identificación..."
+           [(ngModel)]="searchTerm" (ngModelChange)="filter()" />
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Género</th>
+          <th>Edad</th>
+          <th>Identificación</th>
+          <th>Dirección</th>
+          <th>Teléfono</th>
+          <th>Cliente ID</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (client of filtered; track client.id) {
+          <tr>
+            <td>{{ client.id }}</td>
+            <td><strong>{{ client.nombre }}</strong></td>
+            <td>{{ client.genero }}</td>
+            <td>{{ client.edad }}</td>
+            <td>{{ client.identificacion }}</td>
+            <td>{{ client.direccion || '—' }}</td>
+            <td>{{ client.telefono || '—' }}</td>
+            <td><code>{{ client.clienteId }}</code></td>
+            <td>
+              <span class="badge" [class]="client.estado ? 'badge-success' : 'badge-danger'">
+                {{ client.estado ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td>
+              <div class="actions">
+                <button class="btn btn-ghost btn-sm" (click)="openEdit(client)">Editar</button>
+                <button class="btn btn-danger btn-sm" (click)="confirmDelete(client.id!)">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        }
+        @empty {
+          <tr><td colspan="10"><div class="empty-state">No se encontraron clientes</div></td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+@if (showModal) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <span class="modal-title">{{ editMode ? 'Editar Cliente' : 'Nuevo Cliente' }}</span>
+        <button class="modal-close" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Nombre *</label>
+            <input class="form-control" [(ngModel)]="form.nombre"
+                   [class.is-invalid]="fieldErrors['nombre']"
+                   (input)="onNombreChange()"
+                   placeholder="Ej: Jose Lema" />
+            @if (fieldErrors['nombre']) {
+              <span class="form-error">{{ fieldErrors['nombre'] }}</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Género *</label>
+            <select class="form-control" [(ngModel)]="form.genero">
+              <option>Masculino</option>
+              <option>Femenino</option>
+              <option>Otro</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Edad *</label>
+            <input class="form-control" type="number" min="0" max="120"
+                   [(ngModel)]="form.edad"
+                   [class.is-invalid]="fieldErrors['edad']"
+                   (keydown)="blockNonDigits($event)"
+                   (input)="validateFieldLive('edad')" />
+            @if (fieldErrors['edad']) {
+              <span class="form-error">{{ fieldErrors['edad'] }}</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Identificación *</label>
+            <input class="form-control" [(ngModel)]="form.identificacion"
+                   [class.is-invalid]="fieldErrors['identificacion']"
+                   (keydown)="blockNonDigits($event)"
+                   (input)="validateFieldLive('identificacion')"
+                   placeholder="Ej: 1750136796" maxlength="13" />
+            @if (fieldErrors['identificacion']) {
+              <span class="form-error">{{ fieldErrors['identificacion'] }}</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Dirección</label>
+            <input class="form-control" [(ngModel)]="form.direccion"
+                   placeholder="Ej: Otavalo sn y principal" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Teléfono</label>
+            <input class="form-control" [(ngModel)]="form.telefono"
+                   [class.is-invalid]="fieldErrors['telefono']"
+                   (keydown)="blockNonDigits($event)"
+                   (input)="validateFieldLive('telefono')"
+                   placeholder="Ej: 0961723340" maxlength="15" />
+            @if (fieldErrors['telefono']) {
+              <span class="form-error">{{ fieldErrors['telefono'] }}</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Cliente ID *
+              @if (!editMode) {
+                <span class="form-hint">(auto-generado desde el nombre)</span>
+              }
+            </label>
+            <input class="form-control" [(ngModel)]="form.clienteId"
+                   [readonly]="!editMode"
+                   [class.is-invalid]="fieldErrors['clienteId']"
+                   (input)="editMode && validateFieldLive('clienteId')"
+                   placeholder="Ej: jose123" />
+            @if (fieldErrors['clienteId']) {
+              <span class="form-error">{{ fieldErrors['clienteId'] }}</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Contraseña *</label>
+            <input class="form-control" type="password" [(ngModel)]="form.contrasena"
+                   [class.is-invalid]="fieldErrors['contrasena']"
+                   (input)="validateFieldLive('contrasena')" />
+            @if (fieldErrors['contrasena']) {
+              <span class="form-error">{{ fieldErrors['contrasena'] }}</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Estado</label>
+            <select class="form-control" [(ngModel)]="form.estado">
+              <option [ngValue]="true">Activo</option>
+              <option [ngValue]="false">Inactivo</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" (click)="closeModal()">Cancelar</button>
+        <button class="btn btn-primary" (click)="save()" [disabled]="loading">
+          {{ loading ? 'Guardando...' : 'Guardar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showConfirm) {
+  <div class="modal-backdrop" (click)="showConfirm = false">
+    <div class="modal" style="max-width:400px" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <span class="modal-title">Confirmar eliminación</span>
+        <button class="modal-close" (click)="showConfirm = false">×</button>
+      </div>
+      <div class="modal-body">
+        <p>¿Estás seguro de que deseas eliminar este cliente? Esta acción no se puede deshacer.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" (click)="showConfirm = false">Cancelar</button>
+        <button class="btn btn-danger" (click)="delete()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+}

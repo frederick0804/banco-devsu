@@ -1,0 +1,11 @@
+.positive { color: var(--success); font-weight: 600; }
+.negative { color: var(--danger);  font-weight: 600; }
+
+.type-preview {
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  margin-top: 4px;
+}
+.preview-credit { background: var(--success-light); color: var(--success); }
+.preview-debit  { background: var(--danger-light);  color: var(--danger);  }

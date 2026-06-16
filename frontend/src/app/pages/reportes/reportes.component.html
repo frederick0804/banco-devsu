@@ -1,0 +1,93 @@
+<div class="page-header">
+  <h1 class="page-title">Reportes</h1>
+</div>
+
+
+<div class="card filter-card">
+  <h2 class="filter-title">Estado de Cuenta por Cliente</h2>
+  <div class="filter-grid">
+    <div class="form-group">
+      <label class="form-label">Cliente *</label>
+      <select class="form-control" [(ngModel)]="criteria.clienteId">
+        <option [ngValue]="0" disabled>Seleccione un cliente</option>
+        @for (client of clients; track client.id) {
+          <option [ngValue]="client.id">{{ client.nombre }}</option>
+        }
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Fecha Inicio *</label>
+      <input class="form-control" type="datetime-local" [(ngModel)]="criteria.startDate" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Fecha Fin *</label>
+      <input class="form-control" type="datetime-local" [(ngModel)]="criteria.endDate" />
+    </div>
+    <div class="filter-actions">
+      <button class="btn btn-primary" (click)="search()" [disabled]="loading">
+        {{ loading ? 'Buscando...' : 'Generar Reporte' }}
+      </button>
+      @if (searched && report.length > 0) {
+        <button class="btn btn-ghost" (click)="downloadPdf()" [disabled]="downloading">
+          {{ downloading ? 'Generando...' : 'Descargar PDF' }}
+        </button>
+      }
+    </div>
+  </div>
+</div>
+
+@if (searched && report.length > 0) {
+  <div class="card result-card">
+    <div class="result-header">
+      <div>
+        <h3>{{ selectedClientName }}</h3>
+        <p class="period">
+          Período: {{ criteria.startDate | date:'dd/MM/yyyy' }} — {{ criteria.endDate | date:'dd/MM/yyyy' }}
+        </p>
+      </div>
+      <div class="summary">
+        <span class="summary-label">Total movimientos</span>
+        <span class="summary-value" [class]="totalMovements >= 0 ? 'positive' : 'negative'">
+          {{ totalMovements >= 0 ? '+' : '' }}{{ totalMovements | number:'1.2-2' }}
+        </span>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Número Cuenta</th>
+            <th>Tipo</th>
+            <th>Saldo Inicial</th>
+            <th>Estado</th>
+            <th>Movimiento</th>
+            <th>Saldo Disponible</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of report; track $index) {
+            <tr>
+              <td>{{ row.fecha }}</td>
+              <td>{{ row.cliente }}</td>
+              <td><strong>{{ row.numeroCuenta }}</strong></td>
+              <td><span class="badge badge-info">{{ row.tipo }}</span></td>
+              <td>$ {{ row.saldoInicial | number:'1.2-2' }}</td>
+              <td>
+                <span class="badge" [class]="row.estado ? 'badge-success' : 'badge-danger'">
+                  {{ row.estado ? 'Activa' : 'Inactiva' }}
+                </span>
+              </td>
+              <td [class]="row.movimiento >= 0 ? 'positive' : 'negative'">
+                {{ row.movimiento >= 0 ? '+' : '' }}{{ row.movimiento | number:'1.2-2' }}
+              </td>
+              <td><strong>$ {{ row.saldoDisponible | number:'1.2-2' }}</strong></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}

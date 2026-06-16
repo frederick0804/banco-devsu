@@ -50,18 +50,19 @@ public class MovimientoController {
     }
 
     @GetMapping("/reportes")
-    public ResponseEntity<List<ReporteDto>> getReporte(
+    public ResponseEntity<List<ReporteDto>> getReport(
             @RequestParam Long clienteId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaInicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaFin) {
-        return ResponseEntity.ok(movimientoService.getReporte(clienteId, fechaInicio, fechaFin));
+        return ResponseEntity.ok(movimientoService.getReport(clienteId, fechaInicio, fechaFin));
     }
+
     @GetMapping("/reportes/pdf")
-    public ResponseEntity<Map<String, String>> getReportePdf(
+    public ResponseEntity<Map<String, String>> getReportPdf(
             @RequestParam Long clienteId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaInicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaFin) {
-        String pdf = movimientoService.getReportePdf(clienteId, fechaInicio, fechaFin);
+        String pdf = movimientoService.getReportPdf(clienteId, fechaInicio, fechaFin);
         return ResponseEntity.ok(Map.of("pdf", pdf));
     }
 }

@@ -32,8 +32,9 @@ public class MovimientoControllerTest {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper()
+            .findAndRegisterModules()
+            .disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     @MockitoBean
     private MovimientoService movimientoService;
@@ -50,7 +51,7 @@ public class MovimientoControllerTest {
 
         when(movimientoService.findAll()).thenReturn(List.of(dto));
 
-        mockMvc.perform(get("/api/movimientos"))
+        mockMvc.perform(get("/movimientos"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].tipoMovimiento").value("Crédito"))
                 .andExpect(jsonPath("$[0].valor").value(600.0));
@@ -73,7 +74,7 @@ public class MovimientoControllerTest {
 
         when(movimientoService.create(any(MovimientoDto.class))).thenReturn(response);
 
-        mockMvc.perform(post("/api/movimientos")
+        mockMvc.perform(post("/movimientos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())

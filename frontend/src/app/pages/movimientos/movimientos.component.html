@@ -1,0 +1,137 @@
+<div class="page-header">
+  <h1 class="page-title">Movimientos</h1>
+  <button class="btn btn-primary" (click)="openCreate()">+ Nuevo Movimiento</button>
+</div>
+
+
+<div class="card">
+  <div class="search-bar">
+    <input type="text" placeholder="Buscar por tipo o cuenta..."
+           [(ngModel)]="searchTerm" (ngModelChange)="filter()" />
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Fecha</th>
+          <th>Tipo</th>
+          <th>Valor</th>
+          <th>Saldo</th>
+          <th>Cuenta</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (movement of filtered; track movement.id) {
+          <tr>
+            <td>{{ movement.id }}</td>
+            <td>{{ movement.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>
+              <span class="badge" [class]="movement.tipoMovimiento === 'Crédito' ? 'badge-success' : 'badge-danger'">
+                {{ movement.tipoMovimiento }}
+              </span>
+            </td>
+            <td [class]="movement.valor >= 0 ? 'positive' : 'negative'">
+              {{ movement.valor >= 0 ? '+' : '' }}{{ movement.valor | number:'1.2-2' }}
+            </td>
+            <td>$ {{ movement.saldo | number:'1.2-2' }}</td>
+            <td>{{ accountNumber(movement.cuentaId) }}</td>
+            <td>
+              <div class="actions">
+                <button class="btn btn-ghost btn-sm" (click)="openEdit(movement)">Editar</button>
+                <button class="btn btn-danger btn-sm" (click)="confirmDelete(movement.id!)">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        }
+        @empty {
+          <tr><td colspan="7"><div class="empty-state">No se encontraron movimientos</div></td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+@if (showModal) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <span class="modal-title">{{ editMode ? 'Editar Movimiento' : 'Nuevo Movimiento' }}</span>
+        <button class="modal-close" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Cuenta *</label>
+          <select class="form-control" [(ngModel)]="form.cuentaId"
+                  [class.is-invalid]="fieldErrors['cuentaId']"
+                  (change)="validateFieldLive('cuentaId')">
+            <option [ngValue]="0" disabled>Seleccione una cuenta</option>
+            @for (account of accounts; track account.id) {
+              <option [ngValue]="account.id">{{ account.numeroCuenta }} — {{ account.tipoCuenta }} | {{ clientNameForAccount(account) }}</option>
+            }
+          </select>
+          @if (fieldErrors['cuentaId']) {
+            <span class="form-error">{{ fieldErrors['cuentaId'] }}</span>
+          }
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Tipo *</label>
+            <select class="form-control" [(ngModel)]="selectedType">
+              <option>Crédito</option>
+              <option>Débito</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Monto *</label>
+            <input class="form-control" type="number" min="0.01" step="0.01"
+                   [(ngModel)]="absoluteAmount"
+                   [class.is-invalid]="fieldErrors['monto']"
+                   (keydown)="blockNegativeAndLetters($event)"
+                   (input)="onMontoInput()"
+                   placeholder="0.00" />
+            @if (fieldErrors['monto']) {
+              <span class="form-error">{{ fieldErrors['monto'] }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="type-preview" [class]="selectedType === 'Crédito' ? 'preview-credit' : 'preview-debit'">
+          @if (selectedType === 'Crédito') {
+            <span>Se acreditará <strong>+{{ absoluteAmount | number:'1.2-2' }}</strong> al saldo</span>
+          } @else {
+            <span>Se debitará <strong>-{{ absoluteAmount | number:'1.2-2' }}</strong> del saldo</span>
+          }
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" (click)="closeModal()">Cancelar</button>
+        <button class="btn btn-primary" (click)="save()" [disabled]="loading">
+          {{ loading ? 'Procesando...' : 'Registrar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showConfirm) {
+  <div class="modal-backdrop" (click)="showConfirm = false">
+    <div class="modal" style="max-width:400px" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <span class="modal-title">Confirmar eliminación</span>
+        <button class="modal-close" (click)="showConfirm = false">×</button>
+      </div>
+      <div class="modal-body">
+        <p>¿Estás seguro de que deseas eliminar este movimiento?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" (click)="showConfirm = false">Cancelar</button>
+        <button class="btn btn-danger" (click)="delete()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+}

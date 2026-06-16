@@ -1,0 +1,144 @@
+<div class="page-header">
+  <h1 class="page-title">Cuentas</h1>
+  <button class="btn btn-primary" (click)="openCreate()">+ Nueva Cuenta</button>
+</div>
+
+
+<div class="card">
+  <div class="search-bar">
+    <input type="text" placeholder="Buscar por número o tipo..."
+           [(ngModel)]="searchTerm" (ngModelChange)="filter()" />
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Número Cuenta</th>
+          <th>Tipo</th>
+          <th>Saldo Inicial</th>
+          <th>Estado</th>
+          <th>Cliente</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (account of filtered; track account.id) {
+          <tr>
+            <td>{{ account.id }}</td>
+            <td><strong>{{ account.numeroCuenta }}</strong></td>
+            <td><span class="badge badge-info">{{ account.tipoCuenta }}</span></td>
+            <td>$ {{ account.saldoInicial | number:'1.2-2' }}</td>
+            <td>
+              <span class="badge" [class]="account.estado ? 'badge-success' : 'badge-danger'">
+                {{ account.estado ? 'Activa' : 'Inactiva' }}
+              </span>
+            </td>
+            <td>{{ clientName(account.clienteId) }}</td>
+            <td>
+              <div class="actions">
+                <button class="btn btn-ghost btn-sm" (click)="openEdit(account)">Editar</button>
+                <button class="btn btn-danger btn-sm" (click)="confirmDelete(account.id!)">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        }
+        @empty {
+          <tr><td colspan="7"><div class="empty-state">No se encontraron cuentas</div></td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+@if (showModal) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <span class="modal-title">{{ editMode ? 'Editar Cuenta' : 'Nueva Cuenta' }}</span>
+        <button class="modal-close" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Número de Cuenta
+              @if (!editMode) {
+                <span class="form-hint">(auto-generado)</span>
+              }
+            </label>
+            <input class="form-control" [(ngModel)]="form.numeroCuenta" readonly />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tipo de Cuenta *</label>
+            <select class="form-control" [(ngModel)]="form.tipoCuenta">
+              <option>Ahorro</option>
+              <option>Ahorros</option>
+              <option>Corriente</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Saldo Inicial *</label>
+            <input class="form-control" type="number" min="0" step="0.01"
+                   [(ngModel)]="form.saldoInicial"
+                   [class.is-invalid]="fieldErrors['saldoInicial']"
+                   (keydown)="blockNonNumeric($event)"
+                   (input)="validateFieldLive('saldoInicial')" />
+            @if (fieldErrors['saldoInicial']) {
+              <span class="form-error">{{ fieldErrors['saldoInicial'] }}</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Estado</label>
+            <select class="form-control" [(ngModel)]="form.estado">
+              <option [ngValue]="true">Activa</option>
+              <option [ngValue]="false">Inactiva</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="grid-column: span 2">
+            <label class="form-label">Cliente *</label>
+            <select class="form-control" [(ngModel)]="form.clienteId"
+                    [class.is-invalid]="fieldErrors['clienteId']"
+                    (change)="validateFieldLive('clienteId')">
+              <option [ngValue]="0" disabled>Seleccione un cliente</option>
+              @for (client of clients; track client.id) {
+                <option [ngValue]="client.id">{{ client.nombre }} ({{ client.clienteId }})</option>
+              }
+            </select>
+            @if (fieldErrors['clienteId']) {
+              <span class="form-error">{{ fieldErrors['clienteId'] }}</span>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" (click)="closeModal()">Cancelar</button>
+        <button class="btn btn-primary" (click)="save()" [disabled]="loading">
+          {{ loading ? 'Guardando...' : 'Guardar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showConfirm) {
+  <div class="modal-backdrop" (click)="showConfirm = false">
+    <div class="modal" style="max-width:400px" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <span class="modal-title">Confirmar eliminación</span>
+        <button class="modal-close" (click)="showConfirm = false">×</button>
+      </div>
+      <div class="modal-body">
+        <p>¿Estás seguro de que deseas eliminar esta cuenta?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" (click)="showConfirm = false">Cancelar</button>
+        <button class="btn btn-danger" (click)="delete()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+}

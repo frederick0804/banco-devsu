@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface MovimientoRepository extends JpaRepository<Movimiento, Long> {
-    List<Movimiento> findByCuentaId(Long cuentaId);
-    List<Movimiento> findByCuentaClienteIdAndFechaBetween(Long clienteId, LocalDateTime inicio, LocalDateTime fin);
-    List<Movimiento> findByCuentaIdAndFechaBetween(Long cuentaId, LocalDateTime inicio, LocalDateTime fin);
+    List<Movimiento> findByCuentaId(Long accountId);
+    List<Movimiento> findByCuentaClienteIdAndFechaBetween(Long clientId, LocalDateTime start, LocalDateTime end);
+    List<Movimiento> findByCuentaIdAndFechaBetween(Long accountId, LocalDateTime start, LocalDateTime end);
 }

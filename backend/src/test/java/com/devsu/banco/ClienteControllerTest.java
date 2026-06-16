@@ -25,8 +25,7 @@ public class ClienteControllerTest {
 
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @MockitoBean
     private ClienteService clienteService;
@@ -46,7 +45,7 @@ public class ClienteControllerTest {
 
         when(clienteService.findAll()).thenReturn(List.of(dto));
 
-        mockMvc.perform(get("/api/clientes"))
+        mockMvc.perform(get("/clientes"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$[0].nombre").value("Jose Lema"));
@@ -73,7 +72,7 @@ public class ClienteControllerTest {
 
         when(clienteService.create(dto)).thenReturn(response);
 
-        mockMvc.perform(post("/api/clientes")
+        mockMvc.perform(post("/clientes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated());

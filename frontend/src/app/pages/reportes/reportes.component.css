@@ -1,0 +1,55 @@
+.filter-card  { margin-bottom: 20px; }
+.result-card  { }
+
+.filter-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 10px;
+  padding-bottom: 1px;
+}
+
+.result-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.result-header h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.period { color: var(--text-muted); font-size: 0.85rem; }
+
+.summary {
+  text-align: right;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 20px;
+}
+.summary-label { display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 4px; }
+.summary-value { font-size: 1.4rem; font-weight: 700; }
+
+.positive { color: var(--success); font-weight: 600; }
+.negative { color: var(--danger);  font-weight: 600; }
+
+@media (max-width: 900px) {
+  .filter-grid { grid-template-columns: 1fr 1fr; }
+  .filter-actions { grid-column: span 2; }
+}

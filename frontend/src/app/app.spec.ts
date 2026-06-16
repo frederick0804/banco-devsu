@@ -1,10 +1,17 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
 import { App } from './app';
+import { routes } from './app.routes';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
+      providers: [
+        provideRouter(routes),
+        provideHttpClient()
+      ]
     }).compileComponents();
   });
 
@@ -14,10 +21,24 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render title', async () => {
+  it('should render sidebar with navigation links', async () => {
     const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, frontend');
+    const links = compiled.querySelectorAll('.sidebar-nav a');
+    expect(links.length).toBe(4);
+    const textos = Array.from(links).map(a => a.textContent?.trim());
+    expect(textos).toContain('Clientes');
+    expect(textos).toContain('Cuentas');
+    expect(textos).toContain('Movimientos');
+    expect(textos).toContain('Reportes');
+  });
+
+  it('should render BANCO brand in sidebar', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.bank-name')?.textContent?.trim()).toBe('BANCO');
   });
 });

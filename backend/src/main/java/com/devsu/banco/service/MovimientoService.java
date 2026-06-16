@@ -12,6 +12,6 @@ public interface MovimientoService {
     MovimientoDto update(Long id, MovimientoDto dto);
     MovimientoDto partialUpdate(Long id, MovimientoDto dto);
     void delete(Long id);
-    List<ReporteDto> getReporte(Long clienteId, LocalDateTime inicio, LocalDateTime fin);
-    String getReportePdf(Long clienteId, LocalDateTime inicio, LocalDateTime fin);
+    List<ReporteDto> getReport(Long clienteId, LocalDateTime start, LocalDateTime end);
+    String getReportPdf(Long clienteId, LocalDateTime start, LocalDateTime end);
 }
